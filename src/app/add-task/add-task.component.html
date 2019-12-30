@@ -1,0 +1,203 @@
+<h3>Add Task</h3>
+<div class="form-div">
+    <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" novalidate>
+        <div>
+            <input hidden type="text" class="form-control" id="taskId" formControlName="taskId" name="taskId">
+        </div>
+        <div class="form-group row">
+            <label for="project" class="col-sm-2 col-form-label">Project</label>
+            <div class="col-sm-6">
+                <select class="form-control" id="projectId" required formControlName="projectId" name="projectId"
+                    [ngClass]="{ 'is-invalid': submitted &amp;&amp; taskForm.controls.projectId.errors?.required }">
+                    <option [ngValue]="project.projectId" *ngFor="let project of projects | async">
+                        {{project.project}}
+                    </option>
+                </select>
+                <div *ngIf="submitted &amp;&amp; taskForm.controls.projectId.errors" class="text-danger">
+                    <div *ngIf="taskForm.controls.projectId.errors?.required">Project is required</div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <button [disabled]="buttonDisabled || isEditMode" type="button" (click)="openModal(projectModal)" class="btn btn-danger">Search</button>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="project" class="col-sm-2 col-form-label">Task</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="task" required formControlName="task" name="task"
+                    [ngClass]="{ 'is-invalid': submitted &amp;&amp; taskForm.controls.task.errors?.required }">
+                <div *ngIf="submitted &amp;&amp; taskForm.controls.task.errors" class="text-danger">
+                    <div *ngIf="taskForm.controls.task.errors?.required">Task is required</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-sm-4">
+                <input type="checkbox" (click)="onCheckboxClick()" id="isParent" formControlName="isParent" name="isParent" />
+                <label class="form-check-label" for="isParent">
+                    Parent Task
+                </label>
+                <div *ngIf="submitted &amp;&amp; taskForm.controls.isParent.errors" class="text-danger">
+                    <div *ngIf="taskForm.controls.isParent.errors?.required">Task is required</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="priority" class="col-sm-2 col-form-label">Priority</label>
+            <div class="col-sm-10">
+                <input type="range" min="0" max="30" class="form-control" id="priority" required
+                    formControlName="priority" name="priority"
+                    [ngClass]="{ 'is-invalid': submitted &amp;&amp; taskForm.controls.priority.errors?.required }">
+                <div *ngIf="submitted &amp;&amp; taskForm.controls.priority.errors" class="text-danger">
+                    <div *ngIf="taskForm.controls.priority.errors?.required">Priority is required</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="parentTaskId" class="col-sm-2 col-form-label">Parent Task</label>
+            <div class="col-sm-6">
+                <select class="form-control" id="parentTaskId" required formControlName="parentTaskId"
+                    name="parentTaskId"
+                    [ngClass]="{ 'is-invalid': submitted &amp;&amp; taskForm.controls.parentTaskId.errors?.required }">
+                    <option [ngValue]="task.taskId" *ngFor="let task of parentTasks | async">
+                        {{task.task}}
+                    </option>
+                </select>
+                <div *ngIf="submitted &amp;&amp; taskForm.controls.parentTaskId.errors" class="text-danger">
+                    <div *ngIf="taskForm.controls.parentTaskId.errors?.required">Parent task is required</div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <button id="findParent" [disabled]="buttonDisabled" type="button" (click)="openModal(parentModal)" class="btn btn-danger">Search</button>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="startDate" class="col-sm-2 col-form-label">Start Date</label>
+            <div class="col-sm-4">
+                <input type="date" class="form-control" id="startDate" required formControlName="startDate"
+                    name="startDate" value="{{ startDate | date:'mm/dd/yyyy' }}"
+                    [ngClass]="{ 'is-invalid': submitted &amp;&amp; taskForm.controls.startDate.errors?.required }">
+                <div *ngIf="submitted &amp;&amp; taskForm.controls.startDate.errors" class="text-danger">
+                    <div *ngIf="taskForm.controls.startDate.errors?.required">Start date is reuired</div>
+                </div>
+            </div>
+            <label for="endDate" class="col-sm-2 col-form-label">End Date</label>
+            <div class="col-sm-4">
+                <input type="date" class="form-control" id="endDate" required formControlName="endDate" name="endDate"
+                    (blur)="compareTwoDates()" value="{{ endDate | date:'mm/dd/yyyy' }}"
+                    [ngClass]="{ 'is-invalid': submitted &amp;&amp; taskForm.controls.endDate.errors?.required }">
+                <div *ngIf="submitted &amp;&amp; taskForm.controls.endDate.errors" class="text-danger">
+                    <div *ngIf="taskForm.controls.endDate.errors?.required">End date is required</div>
+                </div>
+                <div *ngIf="error.isError" class="text-danger">
+                    {{ error.errorMessage }}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="userId" class="col-sm-2 col-form-label">User</label>
+            <div class="col-sm-6">
+                <select class="form-control" id="userId" formControlName="userId" name="userId">
+                    <option [ngValue]="user.userId" *ngFor="let user of users | async">
+                        {{user.firstName}}
+                    </option>
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <button id="findUser" [disabled]="buttonDisabled" type="button" (click)="openModal(usersModal)" class="btn btn-danger">Search</button>
+            </div>
+        </div>
+
+        <div class="col-xs-4 text-right">
+            <button type="submit" class="form-group btn btn-success addEdit">{{submitButtonText}}</button>
+            <button (click)="resetForm()" ontype="submit" class="form-group btn btn-success">Reset</button>
+        </div>
+    </form>
+    <ng-template id="projectsModal" #projectModal let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title" id="modal-basic-title">Bootstrap Modal</h4>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <label for="projectId" class="label">Project</label>
+                <div class="col">
+                    <ng-select 
+                        bindLabel="selectedProjectId" 
+                        placeholder="Select project" 
+                        appendTo="body"
+                        (change)="getSelectedProjectId($event)">
+                        <ng-option [value]="project.projectId" *ngFor="let project of projects| async">
+                            {{project.project}}
+                        </ng-option>
+                    </ng-select>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button>
+        </div>
+    </ng-template>
+    <ng-template id="parentsModal" #parentModal let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title" id="modal-basic-title">Bootstrap Modal</h4>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <label for="projectId" class="label">Parent</label>
+                <div class="col">
+                    <ng-select 
+                        bindLabel="selectedParentId" 
+                        placeholder="Select parent" 
+                        appendTo="body"
+                        (change)="getSelectedParentId($event)">
+                        <ng-option [value]="task.taskId" *ngFor="let task of parentTasks| async">
+                            {{task.task}}
+                        </ng-option>
+                    </ng-select>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button>
+        </div>
+    </ng-template>
+    <ng-template id="usersModal" #usersModal let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title" id="modal-basic-title">Bootstrap Modal</h4>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <label for="userId" class="label">User</label>
+                <div class="col">
+                    <ng-select 
+                        bindLabel="selectedUserId" 
+                        placeholder="Select user" 
+                        appendTo="body"
+                        (change)="getSelectedUserId($event)">
+                        <ng-option [value]="user.userId" *ngFor="let user of users| async">
+                            {{user.firstName}}
+                        </ng-option>
+                    </ng-select>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button>
+        </div>
+    </ng-template>
+</div>

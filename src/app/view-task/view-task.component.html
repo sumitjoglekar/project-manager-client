@@ -1,0 +1,75 @@
+<div class="panel panel-primary">
+    <div class="panel-body">
+        <div class="form-row">
+            <label for="project" class="col-sm-2 col-form-label">Project:</label>
+            <div class="col">
+                <select class="form-control" [disabled]="true" [(ngModel)]="searchProjectId">
+                    <option [ngValue]="project.projectId" *ngFor="let project of projects | async">
+                        {{project.project}}
+                    </option>
+                </select>
+            </div>
+            <div class="col">
+                <button (click)="openModal(mymodal)" class="btn btn-danger">Search</button>
+            </div>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>TaskId</th>
+                    <th>Task</th>
+                    <th>ParentTask</th>
+                    <th>Priority</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let task of tasks | async">
+                    <td>{{task.taskId}}</td>
+                    <td>{{task.task}}</td>
+                    <td>
+                        <select class="form-control" [disabled]="task.isParent" [(ngModel)]="task.parentTaskId">
+                            <option [ngValue]="pTask.taskId" *ngFor="let pTask of parentTasks | async">{{pTask.task}}
+                            </option>
+                        </select>
+                    </td>
+                    <td>{{task.priority}}</td>
+                    <td>{{task.startDate | date: 'shortDate'}}</td>
+                    <td>{{task.endDate | date: 'shortDate'}}</td>
+                    <td>
+                        <button [disabled]="task.isFinished" (click)="updateTask(task.taskId, task.isParent)"
+                            class="btn btn-danger">Edit</button>
+                        <button [disabled]="task.isFinished" (click)="endTask(task.taskId)"
+                            class="btn btn-info" style="margin-left: 10px">End Task</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <ng-template #mymodal let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title" id="modal-basic-title">Bootstrap Modal</h4>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <label for="projectId" class="label">Project</label>
+                <div class="col">
+                    <ng-select bindLabel="selectedProjectId" placeholder="Select project" appendTo="body"
+                        [(ngModel)]="selectedProjectId">
+                        <ng-option [value]="project.projectId" *ngFor="let project of projects| async">
+                            {{project.project}}
+                        </ng-option>
+                    </ng-select>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button>
+        </div>
+    </ng-template>
+</div>

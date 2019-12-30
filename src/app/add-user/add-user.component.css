@@ -1,0 +1,21 @@
+.form-div {
+    width: 70%;
+    margin-bottom: 5px;
+}
+
+.panel-body {
+    width: 80%;
+}
+
+.sortBtns {
+    margin-right: 5px;
+}
+
+.searchUser {
+    max-width: 100%;
+    margin-bottom: 5px;
+}
+
+.addEdit {
+    margin-right:10px;
+}
